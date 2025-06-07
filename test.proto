@@ -64,16 +64,11 @@ message Contact {
 
 // 嵌套消息 - 用户偏好设置
 message UserPreferences {
-  // 语言设置
-  string language = 1;
-  // 时区
-  string timezone = 2;
-  // 是否接收邮件通知
-  bool email_notifications = 3;
-  // 是否接收短信通知
-  bool sms_notifications = 4;
-  // 主题设置（深色/浅色）
-  string theme = 5;
+  string language = 1; // 语言设置
+  string timezone = 2; // 时区
+  bool email_notifications = 3; // 是否接收邮件通知
+  bool sms_notifications = 4; // 是否接收短信通知
+  string theme = 5; // 主题设置（深色/浅色）
 }
 
 // 主消息 - 用户信息

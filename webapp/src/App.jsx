@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect } from 'react';
 import { proto_to_typescript, proto_to_swift, proto_to_kotlin, proto_to_dart } from './wasm/xcutils_wasm.js';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
@@ -16,6 +16,11 @@ import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 // 创建主题
 const theme = createTheme();
@@ -24,6 +29,8 @@ export default function App() {
   const [protoContent, setProtoContent] = useState('');
   const [output, setOutput] = useState('');
   const [outputType, setOutputType] = useState('swift');
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   useEffect(() => {
     Prism.highlightAll();
@@ -69,6 +76,36 @@ export default function App() {
     } catch (e) {
       setOutput(`Error: ${e}`);
     }
+  };
+
+  const handleCopyToClipboard = async () => {
+    if (!output.trim()) {
+      setCopyError(true);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(output);
+      setCopySuccess(true);
+    } catch (err) {
+      // 如果现代API失败，尝试使用传统方法
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = output;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopySuccess(true);
+      } catch (fallbackErr) {
+        setCopyError(true);
+      }
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setCopySuccess(false);
+    setCopyError(false);
   };
 
   return (
@@ -121,15 +158,51 @@ export default function App() {
         </Box>
 
         <Box>
-          <Typography variant="subtitle1" gutterBottom>
-            Output:
-          </Typography>
-          <Paper elevation={3}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Typography variant="subtitle1">
+              Output:
+            </Typography>
+            {output.trim() && (
+              <Tooltip title="复制到剪贴板">
+                <IconButton 
+                  onClick={handleCopyToClipboard}
+                  color="primary"
+                  size="small"
+                >
+                  <ContentCopyIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+          <Paper elevation={3} sx={{ position: 'relative' }}>
             <pre key={`${outputType}-${output.length}`} className={`language-${outputType === 'kotlin' ? 'kotlin' : outputType}`}>
               <code className={`language-${outputType === 'kotlin' ? 'kotlin' : outputType}`}>{output}</code>
             </pre>
           </Paper>
         </Box>
+
+        {/* 复制成功/失败的通知 */}
+        <Snackbar
+          open={copySuccess}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+            代码已成功复制到剪贴板！
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          open={copyError}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+            复制失败，请手动选择并复制代码。
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
   );

@@ -3,8 +3,8 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 lazy_static! {
-    static ref MESSAGE_RE: Regex = Regex::new(r"message\s+(\w+)\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}").unwrap();
-    static ref ENUM_RE: Regex = Regex::new(r"enum\s+(\w+)\s*\{([^{}]*)\}").unwrap();
+    static ref MESSAGE_RE: Regex = Regex::new(r"(?s)(?://\s*(.*?)\s*\n)?\s*message\s+(\w+)\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}").unwrap();
+    static ref ENUM_RE: Regex = Regex::new(r"(?s)(?://\s*(.*?)\s*\n)?\s*enum\s+(\w+)\s*\{([^{}]*)\}").unwrap();
     static ref FIELD_RE: Regex = Regex::new(
         r"(?://\s*(.*?)\s*\n)?\s*(repeated)?\s*(\w+)\s+(\w+)\s*=\s*(\d+)(?:\s*\[.*?\])?;(?:\s*//\s*(.*))?"
     ).unwrap();
@@ -24,6 +24,7 @@ pub struct ProtoField {
 #[derive(Debug, Clone)]
 pub struct ProtoMessage {
     pub fields: Vec<ProtoField>,
+    pub comment: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +37,7 @@ pub struct ProtoEnumValue {
 #[derive(Debug, Clone)]
 pub struct ProtoEnum {
     pub values: Vec<ProtoEnumValue>,
+    pub comment: Option<String>,
 }
 
 pub struct ProtoParserCore;
@@ -47,18 +49,20 @@ impl ProtoParserCore {
 
         // 解析消息
         for cap in MESSAGE_RE.captures_iter(proto_content) {
-            let name = cap[1].to_string();
-            let body = cap[2].to_string();
+            let comment = cap.get(1).map(|m| m.as_str().trim().to_string());
+            let name = cap[2].to_string();
+            let body = cap[3].to_string();
             let fields = Self::parse_message_fields(&body)?;
-            messages.insert(name, ProtoMessage { fields });
+            messages.insert(name, ProtoMessage { fields, comment });
         }
 
         // 解析枚举
         for cap in ENUM_RE.captures_iter(proto_content) {
-            let name = cap[1].to_string();
-            let body = cap[2].to_string();
+            let comment = cap.get(1).map(|m| m.as_str().trim().to_string());
+            let name = cap[2].to_string();
+            let body = cap[3].to_string();
             let values = Self::parse_enum_values(&body)?;
-            enums.insert(name, ProtoEnum { values });
+            enums.insert(name, ProtoEnum { values, comment });
         }
 
         Ok((messages, enums))
