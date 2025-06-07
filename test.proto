@@ -1,0 +1,233 @@
+// user.proto
+// 完整的Protocol Buffer示例文件
+// 包含各种数据类型、消息嵌套、枚举等特性
+
+syntax = "proto3";
+
+package example;
+
+// 导入其他proto文件（可选）
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/any.proto";
+
+// 枚举定义 - 用户状态
+enum UserStatus {
+  // 未知状态
+  UNKNOWN = 0;
+  // 活跃用户
+  ACTIVE = 1;
+  // 已禁用
+  DISABLED = 2;
+  // 已删除
+  DELETED = 3;
+}
+
+// 枚举定义 - 用户类型
+enum UserType {
+  // 普通用户
+  REGULAR = 0;
+  // VIP用户
+  VIP = 1;
+  // 管理员
+  ADMIN = 2;
+  // 超级管理员
+  SUPER_ADMIN = 3;
+}
+
+// 嵌套消息 - 地址信息
+message Address {
+  // 国家
+  string country = 1;
+  // 省份/州
+  string province = 2;
+  // 城市
+  string city = 3;
+  // 详细地址
+  string detail = 4;
+  // 邮政编码
+  string postal_code = 5;
+  // 是否为默认地址
+  bool is_default = 6;
+}
+
+// 嵌套消息 - 联系方式
+message Contact {
+  // 电话号码
+  string phone = 1;
+  // 邮箱地址
+  string email = 2;
+  // 微信号
+  string wechat = 3;
+  // QQ号
+  string qq = 4;
+}
+
+// 嵌套消息 - 用户偏好设置
+message UserPreferences {
+  // 语言设置
+  string language = 1;
+  // 时区
+  string timezone = 2;
+  // 是否接收邮件通知
+  bool email_notifications = 3;
+  // 是否接收短信通知
+  bool sms_notifications = 4;
+  // 主题设置（深色/浅色）
+  string theme = 5;
+}
+
+// 主消息 - 用户信息
+message User {
+  // 用户ID
+  int64 id = 1;
+  // 用户名
+  string username = 2;
+  // 真实姓名
+  string real_name = 3;
+  // 年龄
+  int32 age = 4;
+  // 身高（厘米）
+  float height = 5;
+  // 体重（公斤）
+  double weight = 6;
+  // 是否已验证
+  bool is_verified = 7;
+  // 用户状态
+  UserStatus status = 8;
+  // 用户类型
+  UserType type = 9;
+  
+  // 嵌套消息字段
+  Contact contact = 10;
+  UserPreferences preferences = 11;
+  
+  // 重复字段 - 多个地址
+  repeated Address addresses = 12;
+  // 重复字段 - 标签列表
+  repeated string tags = 13;
+  // 重复字段 - 朋友ID列表
+  repeated int64 friend_ids = 14;
+  // 重复字段 - 评分历史
+  repeated float rating_history = 15;
+  
+  // 字节数据 - 头像
+  bytes avatar = 16;
+  // 创建时间戳（Unix时间戳）
+  int64 created_at = 17;
+  // 更新时间戳
+  int64 updated_at = 18;
+  
+  // 可选字段 - 生日
+  string birthday = 19;
+  // 可选字段 - 个人简介
+  string bio = 20;
+  
+  // Map类型 - 自定义属性
+  map<string, string> custom_attributes = 21;
+  // Map类型 - 统计数据
+  map<string, int32> statistics = 22;
+}
+
+// 消息 - 用户列表请求
+message GetUsersRequest {
+  // 页码
+  int32 page = 1;
+  // 每页数量
+  int32 page_size = 2;
+  // 搜索关键词
+  string keyword = 3;
+  // 状态过滤
+  repeated UserStatus status_filter = 4;
+  // 类型过滤
+  repeated UserType type_filter = 5;
+  // 排序字段
+  string sort_by = 6;
+  // 排序方向（asc/desc）
+  string sort_order = 7;
+}
+
+// 消息 - 用户列表响应
+message GetUsersResponse {
+  // 用户列表
+  repeated User users = 1;
+  // 总数量
+  int32 total_count = 2;
+  // 当前页码
+  int32 current_page = 3;
+  // 总页数
+  int32 total_pages = 4;
+  // 是否有下一页
+  bool has_next = 5;
+  // 是否有上一页
+  bool has_previous = 6;
+}
+
+// 消息 - 创建用户请求
+message CreateUserRequest {
+  // 用户名
+  string username = 1;
+  // 真实姓名
+  string real_name = 2;
+  // 年龄
+  int32 age = 3;
+  // 联系方式
+  Contact contact = 4;
+  // 地址信息
+  repeated Address addresses = 5;
+  // 用户类型
+  UserType type = 6;
+}
+
+// 消息 - 更新用户请求
+message UpdateUserRequest {
+  // 用户ID
+  int64 id = 1;
+  // 要更新的字段
+  User user = 2;
+  // 更新掩码（指定要更新的字段）
+  repeated string update_mask = 3;
+}
+
+// 消息 - 删除用户请求
+message DeleteUserRequest {
+  // 用户ID
+  int64 id = 1;
+  // 是否软删除
+  bool soft_delete = 2;
+}
+
+// 消息 - 通用响应
+message CommonResponse {
+  // 状态码
+  int32 code = 1;
+  // 消息
+  string message = 2;
+  // 是否成功
+  bool success = 3;
+  // 时间戳
+  int64 timestamp = 4;
+}
+
+// 消息 - 批量操作请求
+message BatchOperationRequest {
+  // 用户ID列表
+  repeated int64 user_ids = 1;
+  // 操作类型
+  string operation = 2;
+  // 操作参数
+  map<string, string> parameters = 3;
+}
+
+// 消息 - 用户统计信息
+message UserStatistics {
+  // 总用户数
+  int32 total_users = 1;
+  // 活跃用户数
+  int32 active_users = 2;
+  // 新增用户数
+  int32 new_users = 3;
+  // 按类型分组的用户数
+  map<string, int32> users_by_type = 4;
+  // 按状态分组的用户数
+  map<string, int32> users_by_status = 5;
+}

@@ -1,0 +1,21 @@
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .control-panel {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* 代码高亮区域样式 */
+  pre[class*="language-"] {
+    border-radius: 4px;
+    padding: 16px !important;
+    background: #2d2d2d !important;
+  }
+  
+  /* 调整Material组件默认样式 */
+  .mdc-text-field--textarea .mdc-text-field__input {
+    min-height: 200px;
+  }

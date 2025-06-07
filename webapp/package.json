@@ -1,0 +1,30 @@
+{
+  "name": "xcutils-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@preact-material-components/button": "^2.0.0-alpha.3",
+    "@preact-material-components/select": "^2.0.0-alpha.3",
+    "@preact-material-components/textfield": "^2.0.0-alpha.3",
+    "@preact-material-components/typography": "^2.0.0-alpha.3",
+    "@types/prismjs": "^1.26.5",
+    "preact": "^10.19.2",
+    "preact-material-components": "^1.6.1",
+    "prismjs": "^1.30.0",
+    "xcutils-wasm": "file:./src/wasm"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^3.0.0",
+    "vite": "^5.0.0"
+  }
+}
